@@ -4,6 +4,8 @@
 
 #+html: <a href=""><img alt="" src="https://img.shields.io/badge/-11/12/2023-1D3B9B?style=flat-square"></a>
 #+html: <a href=""><img alt="" src="https://img.shields.io/badge/-AWM-1931DC?style=flat-square"></a>
+#+html: <a href=""><img alt="" src="https://img.shields.io/badge/-HILBISH-1931DC?style=flat-square"></a>
+#+html: <a href=""><img alt="" src="https://img.shields.io/badge/-NVIM-1931DC?style=flat-square"></a>
 
 #+begin_src fennel
 (os.execute "./bin/deploy.fnl --unsafe")
