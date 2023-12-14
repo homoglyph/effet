@@ -20,5 +20,12 @@
         (table.insert ret `(local ,(. (. [...] i) 1) (require ,(. (. [...] i) 2))))
         (table.insert ret `(require ,(. [...] i)))))
   ret)
+		     
+(fn p! [...]
+  "Append aliases to PATH."
+  (var ret {})
+  (each [_ value (ipairs [...])]
+    (table.insert ret `(hilbish.appendPath ,value)))
+  ret)
 
-{: alias! : env! : m!}
+{: alias! : env! : m! : p!}
