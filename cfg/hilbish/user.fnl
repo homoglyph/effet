@@ -43,19 +43,14 @@
         (alias! "wm!" "$XDG_BIN_HOME/sx")
         (alias! "c"   "clear")
         (alias! "l"   "ls -AFhlv --group-directories-first --color=always")
- 		 
+ 	(alias! ":q"  "exit")
+	
         (alias! ":dfu" "sudo dnf update")
         (alias! ":dfi" "sudo dnf install -y")
         (alias! ":dfr" "sudo dnf remove")
         (alias! ":dfs" "sudo dnf search")
 
-        (alias! ":gc" "git clone")
-        (alias! ":gp" "git pull")
-        (alias! ":gc" "mkdir -p")
- 
         (alias! ":nx!" "nix-shell --command 'hilbish -c=$NYXT_BIN_DIR/nyxt' $NYXT_SHELL_NIX")
-        (alias! ":s"   "sleep")
-        (alias! ":sc!" "maim -s -m 10 $HOME/doc/$(date).png")
         (alias! ":fnc" "fennel --compile")
         (alias! ":fnl" "fennel --load")
       ])
