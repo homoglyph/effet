@@ -28,4 +28,8 @@
     (table.insert ret `(hilbish.appendPath ,value)))
   ret)
 
-{: alias! : env! : m! : p!}
+{: alias!
+ : env!
+ : m!
+ : p!}
+ 

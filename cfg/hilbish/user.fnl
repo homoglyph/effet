@@ -1,66 +1,80 @@
-(import-macros {: alias! : m!} :hilbish-macros)
+(import-macros {: alias!
+                : m!} :hilbish-macros)
 
-(m! (hp :helpers) (h :hilbish) (f :fennel) (lu :lume))
+(m! ({: set-env-dir
+      : set-nix-file-dir} :core.helpers)
+    ({: home
+      : userDir} :hilbish)
+    ({: eval} :fennel)
+    ({: merge} :lume))
 
 (local hilbish-options
        {
-        :runner-mode     f.eval
+        :runner-mode     eval
         :greeting-enable false
         :motd-enable     false
        })
  
 (local env
        {
-        :bin-dir    (or (hp.set-env-dir "bin" h.home) (hp.set-env-dir! "/.local/bin" h.home))
-        :config-dir (or (hp.set-env-dir "cfg" h.home) (hp.set-env-dir! "/.config" h.home))
-        :cache-dir  (or (hp.set-env-dir "cch" h.home) (hp.set-env-dir! "/.cache" h.home))
-        :data-dir   (or (hp.set-env-dir "lcl/share" h.home) (hp.set-env-dir! "/.local/share" h.home))
-        :state-dir  (or (hp.set-env-dir "lcl/state" h.home) (hp.set-env-dir! "/.cache" h.home))
-        :editor     (or "emacs" "nvim")
+        :bin-dir      (set-env-dir "bin" home)
+        :config-dir   (set-env-dir "cfg" home)
+        :cache-dir    (set-env-dir "cch" home)
+        :data-dir     (set-env-dir "lcl/share" home)
+        :state-dir    (set-env-dir "lcl/state" home)
+        :editor       "emacs"
 	:libva-driver "iHD"
        })
 
 (local tools
        {
-        :volta-home-dir      (hp.set-env-dir "volta" h.userDir.data)
-        :ghcup-xdg           "true"  
-        :cabal-dir           (hp.set-env-dir "cabal" h.userDir.config)
-        :stack-root-dir      (hp.set-env-dir "stack" h.userDir.config)
-        :asdf-dir            (hp.set-env-dir "common-lisp/source" h.userDir.data)
+        :volta-home-dir (set-env-dir "volta" userDir.data)
+        :ghcup-xdg      "true"  
+        :cabal-dir      (set-env-dir "cabal" userDir.config)
+        :stack-root-dir (set-env-dir "stack" userDir.config)
+        :asdf-dir       (set-env-dir "common-lisp/source" userDir.data)
        })
 
 (local xtra
        {
-        :nyxt-bin-dir (hp.set-env-dir "nyxt" tools.asdf-dir)
-	:nyxt-shell-nix-file (hp.set-nix-file-dir "utl/nix_shells/" "shell_nyxt.nix" h.home)
+        :nyxt-bin-dir        (set-env-dir "nyxt" tools.asdf-dir)
+	:nyxt-shell-nix-file (set-nix-file-dir "utl/nix_shells/" "shell_nyxt.nix" home)
        })
 
-(local paths { :paths [env.bin-dir
-                       tools.volta-home-dir] })
+(local paths {:paths [env.bin-dir
+                      tools.volta-home-dir]})
 
+(comment
+  "!: This section looks repetitive in comparison with rest of the config.
+   ?: Is there a way to make it more tidy? 
+   a: Probably defining and using a macro like:
+      (a! a-list) where a-list has the following structure:
+      [{:a "my-alias" :c "command"}
+       {...} ...]")
+    
 (local aliases
        [
-        (alias! "wm!" "$XDG_BIN_HOME/sx")
-        (alias! "c"   "clear")
-        (alias! "l"   "ls -AFhlv --group-directories-first --color=always")
- 	(alias! ":q"  "exit")
+        (alias! "c"    "clear")
+        (alias! "l"    "ls -AFhlv --group-directories-first --color=always")
+        (alias! ":q"   "exit")
+        (alias! ":wm!" "$XDG_BIN_HOME/sx")
 	
-        (alias! ":dfu" "sudo dnf update")
         (alias! ":dfi" "sudo dnf install -y")
         (alias! ":dfr" "sudo dnf remove")
         (alias! ":dfs" "sudo dnf search")
-
-        (alias! ":nx!" "nix-shell --command 'hilbish -c=$NYXT_BIN_DIR/nyxt' $NYXT_SHELL_NIX")
+        (alias! ":dfu" "sudo dnf update")
+       
         (alias! ":fnc" "fennel --compile")
         (alias! ":fnl" "fennel --load")
+	(alias! ":nx!" "nix-shell --command 'hilbish -c=$NYXT_BIN_DIR/nyxt' $NYXT_SHELL_NIX")
       ])
 
 (local user
-       (lu.merge hilbish-options
-                 env
-                 tools
-	         xtra
-	         paths
-	         aliases))
+       (merge hilbish-options
+              env
+              tools
+	      xtra
+	      paths
+	      aliases))
 
 user
