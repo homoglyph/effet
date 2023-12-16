@@ -1,6 +1,9 @@
-(import-macros {: m! : env!} :hilbish-macros)
+   (import-macros {: m!
+                : env!} :hilbish-macros)
 
-(m! ({: runnerMode : runner} :hilbish))
+(m! ({: join} :fs)
+    ({: runnerMode
+      : runner} :hilbish))
 
 (fn runner! [mode]
   "Set the mode of the shell since hilbish is special!" 
@@ -9,14 +12,14 @@
                 (let [ok (pcall mode input {:useMetadata true})]
                   (when ok (lua "return input, 0, nil"))
                     (runner.sh input)))))
-		    
+
 (fn set-env-dir
-  [dir evar]
-  (string.format (.. "%s/" dir) evar))
+  [evar dir]
+  (fs.join evar dir))
 
 (fn set-nix-file-dir
-  [dir nix-file evar]
-  (string.format (.. "%s/" dir "/" nix-file) evar))
+  [evar dir nix-file]
+  (fs.join evar dir nix-file))
 
 {: runner!
  : set-env-dir

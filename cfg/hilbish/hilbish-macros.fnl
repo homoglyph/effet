@@ -1,16 +1,27 @@
-(fn alias! [name ...]
-  "Check if an alias can be assigned to an existing program."
-  (var ret nil)
-  (for [i 1 (length [...]) :until (not= ret nil)]
-    (if (not= (hilbish.which (. [...] i)) "")
-          (set ret `(hilbish.alias ,(tostring name) ,(. [...] i)))))
-  ret)
+(fn map [func coll]
+ "Map a function over a table (collection)"
+ (let [out {}]
+   (each [idx value (ipairs coll)]
+     (tset out idx (func value)))
+   out))
+
+(fn a! [...]
+  "Better handling for hilbish.alias/add."
+   (let [aliases ...]
+      (map (λ [alias] `(hilbish.alias ,alias.a ,alias.c))
+             aliases)))
 
 (fn env! [name value]
   "For set/getting ENVIRONMENT vars."
   (if (not= value nil)
   `(os.setenv ,name ,value)
   `(os.getenv ,name)))
+
+(fn e! [...]
+  "Better handling for os.{set/get}env."
+   (let [evars ...]
+     (map (λ [e] `(env! ,e.e ,e.v))
+            evars)))
 
 (fn m! [...]
   "Silly modules macro ..."
@@ -28,8 +39,9 @@
     (table.insert ret `(hilbish.appendPath ,value)))
   ret)
 
-{: alias!
+{: a!
  : env!
+ : e!
  : m!
  : p!}
  

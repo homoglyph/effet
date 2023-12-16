@@ -1,5 +1,15 @@
-(import-macros {: alias!
-                : m!} :hilbish-macros)
+(comment
+  "Effet's machine hilbish config.
+   Macros and extras from: https://gitlab.com/renzix/Dotfiles
+			   https://github.com/TorchedSammy/dotfiles/
+   Depends on: https://github.com/rxi/lume
+               https://github.com/bakpakin/Fennel")
+
+(import-macros {: a!
+                : e!
+		: env!
+                : m!
+		: p!} :hilbish-macros)
 
 (m! ({: set-env-dir
       : set-nix-file-dir} :core.helpers)
@@ -9,72 +19,70 @@
     ({: merge} :lume))
 
 (local hilbish-options
-       {
-        :runner-mode     eval
-        :greeting-enable false
-        :motd-enable     false
-       })
+  {:runner-mode     eval
+   :greeting-enable false
+   :motd-enable     false})
  
 (local env
-       {
-        :bin-dir      (set-env-dir "bin" home)
-        :config-dir   (set-env-dir "cfg" home)
-        :cache-dir    (set-env-dir "cch" home)
-        :data-dir     (set-env-dir "lcl/share" home)
-        :state-dir    (set-env-dir "lcl/state" home)
-        :editor       "emacs"
-	:libva-driver "iHD"
-       })
+  {:bin-dir      (set-env-dir home "bin")
+   :config-dir   (set-env-dir home "cfg")
+   :cache-dir    (set-env-dir home "cch" )
+   :data-dir     (set-env-dir home "lcl/share")
+   :state-dir    (set-env-dir home "lcl/state")
+   :editor       "emacs"
+   :libva-driver "iHD"})
 
 (local tools
-       {
-        :volta-home-dir (set-env-dir "volta" userDir.data)
-        :ghcup-xdg      "true"  
-        :cabal-dir      (set-env-dir "cabal" userDir.config)
-        :stack-root-dir (set-env-dir "stack" userDir.config)
-        :asdf-dir       (set-env-dir "common-lisp/source" userDir.data)
-       })
+  {:volta-home-dir (set-env-dir userDir.data "volta")
+   :ghcup-xdg      "true"  
+   :cabal-dir      (set-env-dir userDir.config "cabal")
+   :stack-root-dir (set-env-dir userDir.config "stack")
+   :asdf-dir       (set-env-dir userDir.data "common-lisp/source")})
 
 (local xtra
-       {
-        :nyxt-bin-dir        (set-env-dir "nyxt" tools.asdf-dir)
-	:nyxt-shell-nix-file (set-nix-file-dir "utl/nix_shells/" "shell_nyxt.nix" home)
-       })
+  {:nyxt-bin-dir        (set-env-dir tools.asdf-dir "nyxt")
+   :nyxt-shell-nix-file (set-nix-file-dir home  "utl/nix_shells/" "shell_nyxt.nix")})
 
-(local paths {:paths [env.bin-dir
-                      tools.volta-home-dir]})
+(local evars 
+  (e! [{:e :XDG_BIN_HOME       :v env.bin-dir}
+       {:e :XDG_CONFIG_HOME    :v env.config-dir}
+       {:e :XDG_CACHE_HOME     :v env.cache-dir}  
+       {:e :XDG_DATA_HOME      :v env.data-dir}
+       {:e :XDG_STATE_HOME     :v env.state-dir}
+       {:e :EDITOR             :v env.editor}
+       {:e :LIBVA_DRIVER_NAME  :v env.libva-driver}
+       {:e :VOLTA_HOME         :v tools.volta-home-dir}
+       {:e :GHCUP_USE_XDG_DIRS :v tools.ghcup-xdg}
+       {:e :CABAL_DIR          :v tools.cabal-dir}    
+       {:e :CABAL_CONFIG       :v (env! :CABAL_DIR)}
+       {:e :STACK_ROOT         :v tools.stack-root-dir}
+       {:e :ASDF_PROJECTS      :v tools.asdf-dir}
+       {:e :NYXT_BIN_DIR       :v xtra.nyxt-bin-dir}
+       {:e :NYXT_SHELL_NIX     :v xtra.nyxt-shell-nix-file}]))
 
-(comment
-  "!: This section looks repetitive in comparison with rest of the config.
-   ?: Is there a way to make it more tidy? 
-   a: Probably defining and using a macro like:
-      (a! a-list) where a-list has the following structure:
-      [{:a "my-alias" :c "command"}
-       {...} ...]")
-    
+(local paths (p! env.bin-dir
+                 tools.volta-home-dir))
+
 (local aliases
-       [
-        (alias! "c"    "clear")
-        (alias! "l"    "ls -AFhlv --group-directories-first --color=always")
-        (alias! ":q"   "exit")
-        (alias! ":wm!" "$XDG_BIN_HOME/sx")
-	
-        (alias! ":dfi" "sudo dnf install -y")
-        (alias! ":dfr" "sudo dnf remove")
-        (alias! ":dfs" "sudo dnf search")
-        (alias! ":dfu" "sudo dnf update")
-       
-        (alias! ":fnc" "fennel --compile")
-        (alias! ":fnl" "fennel --load")
-	(alias! ":nx!" "nix-shell --command 'hilbish -c=$NYXT_BIN_DIR/nyxt' $NYXT_SHELL_NIX")
-      ])
+ (a! [{:a "c"    :c "clear"}
+      {:a "l"    :c "ls -AFhlv --group-directories-first --color=always"}
+      {:a ":q"   :c "exit"}
+      {:a ":wm!" :c "$XDG_BIN_HOME/sx"}
+      {:a ":dfi" :c "sudo dnf install -y"}
+      {:a ":dfr" :c "sudo dnf remove"}
+      {:a ":dfs" :c "sudo dnf search"}
+      {:a ":dfu" :c "sudo dnf update"}
+      {:a ":fnc" :c "fennel --compile"}
+      {:a ":fnl" :c "fennel --load"}
+      {:a ":nx!" :c "nix-shell --command 'hilbish -c=$NYXT_BIN_DIR/nyxt' $NYXT_SHELL_NIX"}]))
 
 (local user
-       (merge hilbish-options
-              env
-              tools
-	      xtra
-	      paths
-	      aliases))
+  (merge hilbish-options
+         env
+         tools
+         xtra
+	 evars
+         paths
+	 aliases))
 
 user

@@ -16,4 +16,3 @@
 (table.insert (or package.loaders package.searchers) searcher)
 (set debug.traceback fennel.traceback)
 (require :config)
-
